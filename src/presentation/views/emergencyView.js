@@ -1,8 +1,7 @@
 /**
  * PRESENTATION LAYER — emergencyView.js
  */
-import { getFloorRooms } from '../../infrastructure/mockRepository.js';
-import { listStaff, getStaffById, getSelectedStaffId, selectStaff, reportToRSO } from '../../application/staffService.js';
+import { listStaff, getStaffById, getSelectedStaffId, selectStaff, reportToRSO, getFloorRooms } from '../../application/staffService.js';
 import { toast } from '../toast.js';
 import { renderAlerts } from './alertsView.js';
 import { refreshAlertKpis } from './dashboardView.js';

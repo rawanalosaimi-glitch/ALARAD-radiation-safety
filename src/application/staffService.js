@@ -4,9 +4,15 @@
  * staff rotation, and reporting a staff member's location to the RSO.
  */
 import { getState, setSelectedStaff, addAlert, rebindDevice } from '../infrastructure/store.js';
+import { getFloorRooms as repoGetFloorRooms } from '../infrastructure/mockRepository.js';
 
 export function listStaff() {
   return getState().staff;
+}
+
+/** Physical floor layout for the currently selected facility. */
+export function getFloorRooms() {
+  return repoGetFloorRooms(getState().facilityId);
 }
 
 export function getStaffById(id) {
