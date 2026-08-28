@@ -4,8 +4,25 @@
  * No dose/risk math lives in this file — see domain/riskEngine.js.
  */
 import { runAnomalyDetection } from '../../application/anomalyService.js';
+import { getAiInputs } from '../../infrastructure/mockRepository.js';
 import { handleSimulateLeak } from './dashboardView.js';
 import { showView } from '../navigation.js';
+
+/** "AI Inputs" panel: which data types feed personalized risk assessment today vs. proposed. */
+export function renderAiInputs() {
+  const el = document.getElementById('aiInputsGrid');
+  if (!el) return;
+  el.innerHTML = getAiInputs().map((i) => `
+    <div class="sensor-card">
+      <div class="sic">${i.ico}</div>
+      <div class="sname">${i.name}</div>
+      <div class="sunit" style="margin-top:4px;">${i.note}</div>
+      <div style="margin-top:8px;">${i.status === 'active'
+        ? '<span class="badge normal">USED IN MODEL</span>'
+        : '<span class="tag-proposed">PROPOSED INPUT</span>'}</div>
+    </div>`
+  ).join('');
+}
 
 export function handleRunAnomalyModel() {
   const room = document.getElementById('inRoom').value;

@@ -18,7 +18,7 @@ export function renderDeviceBindings() {
     return `<div class="device-row">
       <div class="did">${b.device}</div>
       <div class="arrow">↔</div>
-      <div class="who">${s ? s.name : 'Unassigned'} <span style="color:var(--muted2);font-weight:400;">(${b.staffId})</span><div class="since">Paired since ${b.since}</div></div>
+      <div class="who">${s ? s.name : 'Unassigned'} <span style="color:var(--muted2);font-weight:400;">(${b.staffId})</span><div class="since">${s ? s.dept + ' · ' : ''}${b.shift || ''} · Paired since ${b.since}</div></div>
       <span class="badge normal">ACTIVE</span>
     </div>`;
   }).join('');

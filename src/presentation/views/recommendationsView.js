@@ -1,10 +1,10 @@
 /**
  * PRESENTATION LAYER — recommendationsView.js
  */
-import { getRecommendations, getExposureLog } from '../../infrastructure/mockRepository.js';
+import { listRecommendations, listExposureLog } from '../../application/recommendationsService.js';
 
 export function renderRecommendations() {
-  document.getElementById('recList').innerHTML = getRecommendations().map((r) => `
+  document.getElementById('recList').innerHTML = listRecommendations().map((r) => `
     <div class="card" style="margin-bottom:12px;">
       <div style="display:flex;justify-content:space-between;">
         <h3 style="margin:0;">${r.title}</h3>
@@ -17,7 +17,7 @@ export function renderRecommendations() {
 }
 
 export function renderExposureLog() {
-  document.getElementById('expTable').innerHTML = getExposureLog().map((r) =>
+  document.getElementById('expTable').innerHTML = listExposureLog().map((r) =>
     `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`
   ).join('');
 }

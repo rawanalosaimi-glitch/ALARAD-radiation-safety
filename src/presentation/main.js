@@ -13,22 +13,29 @@ import { renderDashboard, handleSimulateLeak, handleViewAllAlerts } from './view
 import { renderStaffTable, handleStaffGps } from './views/staffView.js';
 import { renderAlerts, handleAckAlert, handleEscalateAlert } from './views/alertsView.js';
 import { renderRecommendations, renderExposureLog } from './views/recommendationsView.js';
-import { handleRunAnomalyModel, handleAnomalyEscalate } from './views/anomalyView.js';
+import { handleRunAnomalyModel, handleAnomalyEscalate, renderAiInputs } from './views/anomalyView.js';
 import { renderWearableView, handleRotateDevice } from './views/wearableView.js';
 import { renderEmergencyView, selectStaffAndRender, handleReportToRSO } from './views/emergencyView.js';
 import { renderKnowledgeSources, handleAskAlaradAI, handleAskPreset } from './views/askAiView.js';
-import { renderPolicyTable } from './views/policyView.js';
+import { renderPolicyTable, renderPolicyGaps } from './views/policyView.js';
+import { renderDataSources, renderSecurityArchitecture } from './views/securityView.js';
+import { renderFacilitySelector, handleFacilityChange } from './views/facilityView.js';
 
 function initialRender() {
+  renderFacilitySelector();
   renderDashboard();
   renderStaffTable();
   renderAlerts();
   renderRecommendations();
   renderExposureLog();
+  renderAiInputs();
   renderWearableView();
   renderEmergencyView();
   renderKnowledgeSources();
   renderPolicyTable();
+  renderPolicyGaps();
+  renderDataSources();
+  renderSecurityArchitecture();
 }
 
 const ACTIONS = {
@@ -59,6 +66,11 @@ function initEventDelegation() {
     aiInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') handleAskAlaradAI();
     });
+  }
+
+  const facilitySelect = document.getElementById('facilitySelect');
+  if (facilitySelect) {
+    facilitySelect.addEventListener('change', (e) => handleFacilityChange(e.target.value));
   }
 }
 

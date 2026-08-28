@@ -47,11 +47,17 @@
   <!-- ================= MAIN ================= -->
   <div class="main">
     <div class="topbar">
-      <div class="live-pill"><span class="bar"></span><span class="bar"></span><span class="bar"></span> LIVE MONITORING</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="live-pill"><span class="bar"></span><span class="bar"></span><span class="bar"></span> LIVE MONITORING</div>
+        <div class="facility-switcher">
+          <label for="facilitySelect">🏥 Facility</label>
+          <select id="facilitySelect"></select>
+        </div>
+      </div>
       <div class="profile">
         <div style="text-align:right;">
           <div class="name">Dr. Radiation Safety Officer</div>
-          <div class="role">King Fahad Medical City</div>
+          <div class="role" id="profileFacility">King Fahad Medical City</div>
         </div>
         <div class="avatar">RSO</div>
       </div>
@@ -60,7 +66,8 @@
     <!-- ============ DASHBOARD ============ -->
     <div class="view active" id="view-dashboard">
       <h1 class="page-title">Hospital Radiation Dashboard</h1>
-      <p class="page-sub ar">لوحة مراقبة الإشعاع — مستشفى الملك فهد الطبي</p>
+      <p class="page-sub ar">لوحة مراقبة الإشعاع — نفس الواجهة عبر عدة مستشفيات</p>
+      <p class="page-sub" id="facilityContext" style="margin-top:-4px;"></p>
 
       <div class="crit-banner" id="critBanner" style="display:none;">
         <span class="ico">⚠</span>
@@ -116,7 +123,7 @@
       <p class="page-sub ar">مراقبة الموظفين</p>
       <div class="card">
         <table>
-          <thead><tr><th>Staff / Employee ID</th><th>Role</th><th>Department</th><th>Today's Dose</th><th>Cumulative (yr)</th><th>Status</th><th></th></tr></thead>
+          <thead><tr><th>Staff / Employee ID</th><th>Role</th><th>Department</th><th>Wearable ID</th><th>Current Shift</th><th>Radiation Dose (Today)</th><th>Cumulative (yr)</th><th>Status</th><th></th></tr></thead>
           <tbody id="staffTable"></tbody>
         </table>
       </div>
@@ -183,6 +190,13 @@
           <p>Production version: replace the baseline table with a trained time-series model (e.g. Prophet / LSTM) fitted on real dosimeter history, and replace the linear trend with the model's own forecast output — only <code>riskEngine.js</code> would need to change.</p>
         </div>
       </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h3>AI Inputs — Personalized Risk Assessment</h3>
+        <div class="ar-title">مدخلات الذكاء الاصطناعي لتقييم المخاطر الشخصي</div>
+        <div class="sensor-grid" id="aiInputsGrid"></div>
+        <div class="foot-note">Radiation dose, exposure duration, and previous (cumulative) exposure already drive the computed model above. Heart rate, respiratory rate, and work shift are collected by the wearable (see Wearable & Rotation) but are proposed inputs — not yet wired into the risk model.</div>
+      </div>
     </div>
 
     <!-- ============ WEARABLE & ROTATION ============ -->
@@ -216,6 +230,14 @@
     <div class="view" id="view-security">
       <h1 class="page-title">Data Security</h1>
       <p class="page-sub ar">أمن البيانات — الاتصال الآمن، التشفير، والتحقق من الهوية</p>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div><h3 style="margin:0;">Proposed Security Architecture</h3><div class="ar-title">البنية الأمنية المقترحة</div></div>
+          <span class="tag-proposed">PROPOSED — NOT YET IMPLEMENTED IN PRODUCTION</span>
+        </div>
+        <div class="sensor-grid" id="securityArchGrid" style="margin-top:10px;"></div>
+      </div>
 
       <div class="sec-grid" style="margin-bottom:14px;">
         <div class="sec-card">
@@ -256,6 +278,15 @@
           <span class="ico">ℹ</span>
           <div><b>AI scope:</b> the AI engine outputs a risk score, forecast, or alert/recommendation only. It never outputs a medical diagnosis or treatment decision — all clinical and safety decisions remain with the Radiation Safety Officer and qualified staff.</div>
         </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div><h3 style="margin:0;">Data Sources</h3><div class="ar-title">مصادر البيانات ونوع كل مصدر</div></div>
+          <span class="tag-proposed">PROTOTYPE MAPPING — NOT LIVE INTEGRATIONS</span>
+        </div>
+        <div id="dataSourcesList" style="margin-top:6px;"></div>
+        <div class="foot-note">Proposed standardized exchange format: <b>JSON</b> — see the payload example below.</div>
       </div>
 
       <div class="card">
@@ -374,6 +405,12 @@
           <h4>Human-in-the-Loop</h4>
           <p>Model outputs (predicted dose, risk level, anomaly flags) are checked against dose limits; high-risk alerts are reviewed by a Radiation Safety Officer before escalation — enforced in this prototype via the "Report to Radiation Safety Officer" action on the Emergency / GPS page.</p>
         </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h3>Identified Policy Gaps</h3>
+        <div class="ar-title">الثغرات التنظيمية المحددة</div>
+        <div id="policyGapsList"></div>
       </div>
     </div>
 
