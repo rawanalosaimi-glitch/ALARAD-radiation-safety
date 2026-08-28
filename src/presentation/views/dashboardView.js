@@ -5,6 +5,7 @@
  */
 import { getDashboardData, simulateLeakEvent } from '../../application/dashboardService.js';
 import { getAlertCounts } from '../../application/alertsService.js';
+import { listStaff } from '../../application/staffService.js';
 import { toast } from '../toast.js';
 import { showView } from '../navigation.js';
 import { renderAlerts } from './alertsView.js';
@@ -23,6 +24,16 @@ export function renderDashboard() {
   ).join('');
 
   refreshAlertKpis();
+  refreshCritBanner();
+}
+
+/** Critical-staff banner and the "Active Staff" KPI, both derived live from the roster. */
+export function refreshCritBanner() {
+  const staff = listStaff();
+  const criticalStaff = staff.filter((s) => s.status === 'critical');
+  document.getElementById('kpiStaff').textContent = staff.length;
+  document.getElementById('critCount').textContent = criticalStaff.length;
+  document.getElementById('critBanner').style.display = criticalStaff.length > 0 ? 'flex' : 'none';
 }
 
 export function refreshAlertKpis() {

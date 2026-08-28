@@ -11,13 +11,19 @@
 import {
   getStaff, getInitialAlerts, getInitialDeviceBindings, getInitialRotationLog,
 } from './mockRepository.js';
+import { classifyDoseStatus } from '../domain/riskEngine.js';
+
+// Status is derived here, once, from each staff member's cumulative yearly
+// dose against the ICRP Publication 103 / NRRC-R-01-SR02 occupational limit
+// of 20 mSv/year — never hand-typed in the mock data.
+const initialStaff = getStaff().map((s) => ({ ...s, status: classifyDoseStatus(s.today, s.year) }));
 
 const state = {
-  staff: getStaff(),
+  staff: initialStaff,
   alerts: getInitialAlerts(),
   deviceBindings: getInitialDeviceBindings(),
   rotationLog: getInitialRotationLog(),
-  selectedStaffId: getStaff()[0].id,
+  selectedStaffId: initialStaff[0].id,
 };
 
 const listeners = new Set();

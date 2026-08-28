@@ -64,7 +64,7 @@
 
       <div class="crit-banner" id="critBanner" style="display:none;">
         <span class="ico">⚠</span>
-        <div><b id="critCount">11</b> staff at critical exposure level — <span class="ar" style="direction:rtl">حرج مستوى في موظف</span> — Immediate action required.</div>
+        <div><b id="critCount">0</b> staff at critical exposure level — <span class="ar" style="direction:rtl">حرج مستوى في موظف</span> — Immediate action required.</div>
         <div class="spacer"></div>
         <button class="btn red sm" data-action="view-all-alerts">View All</button>
       </div>
@@ -75,7 +75,7 @@
       </div>
 
       <div class="grid4">
-        <div class="card kpi"><div class="icon blue">◎</div><div class="val" id="kpiStaff">6</div><div class="lbl">Active Staff</div><div class="sub">Under monitoring</div></div>
+        <div class="card kpi"><div class="icon blue">◎</div><div class="val" id="kpiStaff">–</div><div class="lbl">Active Staff</div><div class="sub">Under monitoring</div></div>
         <div class="card kpi"><div class="icon green">∿</div><div class="val" id="kpiDose">9.0 mSv</div><div class="lbl">Avg Dose Today</div><div class="sub">Limit: 20 mSv/year</div></div>
         <div class="card kpi"><div class="icon red">◈</div><div class="val" id="kpiAlerts">3</div><div class="lbl">Active Alerts</div><div class="sub" id="kpiAlertsSub">1 critical</div></div>
         <div class="card kpi"><div class="icon purple">✦</div><div class="val">3</div><div class="lbl">AI Recommendations</div><div class="sub">Pending review</div></div>
@@ -161,7 +161,7 @@
           <div class="ar-title">Input: dose rate · time · room · procedure · distance · shielding</div>
           <div class="form-grid">
             <div class="field"><label>Room / Location</label>
-              <select id="inRoom"><option>Cath Lab 1</option><option>Cath Lab 2</option><option>Fluoroscopy Suite</option><option>Nuclear Medicine</option><option>CT Suite</option></select>
+              <select id="inRoom"><option>Cath Lab 1</option><option>Cath Lab 2</option><option>Cath Lab 3</option><option>Fluoroscopy Suite</option><option>Nuclear Medicine</option><option>PET/CT Suite</option><option>CT Suite</option></select>
             </div>
             <div class="field"><label>Procedure Type</label>
               <select id="inProc"><option value="1.0">Diagnostic Fluoroscopy (baseline ×1.0)</option><option value="1.8">Interventional Cardiology (×1.8)</option><option value="1.4">Cath Lab Angiography (×1.4)</option><option value="0.6">Nuclear Medicine Scan (×0.6)</option></select>
