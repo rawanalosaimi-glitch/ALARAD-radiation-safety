@@ -21,8 +21,10 @@
 export const BASELINE_RATES_USV_H = {
   'Cath Lab 1': 90,
   'Cath Lab 2': 85,
+  'Cath Lab 3': 92,
   'Fluoroscopy Suite': 70,
   'Nuclear Medicine': 35,
+  'PET/CT Suite': 45,
   'CT Suite': 55,
 };
 
@@ -101,4 +103,20 @@ export function classifyDoseStatus(todayMsv, yearMsv, yearLimitMsv = 20) {
   if (ratio >= 0.9) return 'critical';
   if (ratio >= 0.5) return 'elevated';
   return 'normal';
+}
+
+/**
+ * Average cumulative yearly dose per department, computed live from the
+ * actual staff roster — never hand-typed — so it always matches whoever
+ * is currently on shift.
+ */
+export function computeDepartmentAverages(staff) {
+  const byDept = {};
+  staff.forEach((s) => {
+    (byDept[s.dept] = byDept[s.dept] || []).push(s.year);
+  });
+  return Object.entries(byDept).map(([name, years]) => ({
+    name,
+    v: years.reduce((a, b) => a + b, 0) / years.length,
+  }));
 }

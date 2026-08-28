@@ -12,21 +12,21 @@
  * -----------------------------------------------------------------------
  */
 
+// Status is not stored here — it is computed live from each staff member's
+// cumulative yearly dose via domain/riskEngine.js's classifyDoseStatus(),
+// never hand-typed. See infrastructure/store.js.
 export function getStaff() {
   return [
-    { id: 'ST-04', name: 'T. Al-Qahtani', role: 'Interventional Radiologist', dept: 'Cath Lab 1', today: 0.61, year: 19.2, status: 'critical', x: 150, y: 90 },
-    { id: 'ST-11', name: 'F. Al-Harbi', role: 'Radiologic Technologist', dept: 'Fluoroscopy Suite', today: 0.38, year: 11.4, status: 'elevated', x: 330, y: 70 },
-    { id: 'ST-02', name: 'S. Al-Dosari', role: 'Cath Lab Staff', dept: 'Cath Lab 2', today: 0.29, year: 9.8, status: 'normal', x: 150, y: 200 },
-    { id: 'ST-07', name: 'M. Al-Zahrani', role: 'Nuclear Medicine Staff', dept: 'Nuclear Medicine', today: 0.18, year: 6.1, status: 'normal', x: 420, y: 210 },
-    { id: 'ST-09', name: 'A. Al-Otaibi', role: 'Radiation Therapist', dept: 'CT Suite', today: 0.22, year: 7.4, status: 'normal', x: 420, y: 90 },
-    { id: 'ST-15', name: 'H. Al-Shammari', role: 'Medical Physicist', dept: 'Corridor / Rounds', today: 0.09, year: 3.2, status: 'normal', x: 270, y: 150 },
-  ];
-}
-
-export function getDepartmentDoseAvg() {
-  return [
-    { name: 'Cath Lab 1', v: 9.8 }, { name: 'Cath Lab 2', v: 6.1 }, { name: 'Fluoroscopy', v: 7.4 },
-    { name: 'Nuclear Med.', v: 4.2 }, { name: 'CT Suite', v: 3.6 },
+    { id: 'ST-04', name: 'T. Al-Qahtani', role: 'Interventional Radiologist', dept: 'Cath Lab 1', today: 0.61, year: 19.2, x: 60, y: 65 },
+    { id: 'ST-11', name: 'F. Al-Harbi', role: 'Radiologic Technologist', dept: 'Fluoroscopy Suite', today: 0.38, year: 11.4, x: 475, y: 60 },
+    { id: 'ST-02', name: 'S. Al-Dosari', role: 'Cath Lab Staff', dept: 'Cath Lab 2', today: 0.29, year: 9.8, x: 200, y: 65 },
+    { id: 'ST-07', name: 'M. Al-Zahrani', role: 'Nuclear Medicine Staff', dept: 'Nuclear Medicine', today: 0.18, year: 6.1, x: 60, y: 195 },
+    { id: 'ST-09', name: 'A. Al-Otaibi', role: 'Radiation Therapist', dept: 'CT Suite', today: 0.22, year: 7.4, x: 340, y: 195 },
+    { id: 'ST-15', name: 'H. Al-Shammari', role: 'Medical Physicist', dept: 'Corridor / Rounds', today: 0.09, year: 3.2, x: 475, y: 195 },
+    { id: 'ST-06', name: 'K. Al-Ghamdi', role: 'Interventional Cardiologist', dept: 'Cath Lab 3', today: 0.55, year: 18.0, x: 340, y: 65 },
+    { id: 'ST-13', name: 'N. Al-Subaie', role: 'PET/CT Technologist', dept: 'PET/CT Suite', today: 0.31, year: 10.6, x: 200, y: 195 },
+    { id: 'ST-08', name: 'R. Al-Malki', role: 'Radiologic Technologist', dept: 'Fluoroscopy Suite', today: 0.14, year: 4.8, x: 505, y: 95 },
+    { id: 'ST-20', name: 'Y. Al-Harthi', role: 'Radiologic Technologist', dept: 'Cath Lab 2', today: 0.46, year: 14.5, x: 230, y: 95 },
   ];
 }
 
@@ -37,16 +37,20 @@ export function getWeeklyTrend() {
 export function getInitialAlerts() {
   return [
     { id: 1, level: 'critical', title: 'ST-04 approaching critical exposure level', meta: 'Cath Lab 1 · 2 min ago · Source: Anomaly Detection model', ack: false },
-    { id: 2, level: 'warning', title: 'ST-11 elevated dose rate this week', meta: 'Fluoroscopy Suite · 40 min ago · Source: Time-series forecast', ack: false },
-    { id: 3, level: 'info', title: 'Weekly compliance report generated', meta: 'Hospital-wide · 3 hrs ago · Source: Automated reporting', ack: false },
+    { id: 2, level: 'critical', title: 'ST-06 approaching critical exposure level', meta: 'Cath Lab 3 · 15 min ago · Source: Anomaly Detection model', ack: false },
+    { id: 3, level: 'warning', title: 'ST-11 elevated dose rate this week', meta: 'Fluoroscopy Suite · 40 min ago · Source: Time-series forecast', ack: false },
+    { id: 4, level: 'warning', title: 'ST-13 elevated dose trend this week', meta: 'PET/CT Suite · 1 hr ago · Source: Time-series forecast', ack: false },
+    { id: 5, level: 'warning', title: 'ST-20 elevated dose trend this week', meta: 'Cath Lab 2 · 1.5 hrs ago · Source: Time-series forecast', ack: false },
+    { id: 6, level: 'info', title: 'Weekly compliance report generated', meta: 'Hospital-wide · 3 hrs ago · Source: Automated reporting', ack: false },
   ];
 }
 
 export function getRecommendations() {
   return [
     { title: 'Rotate ST-04 out of Cath Lab 1 for remainder of shift', why: 'Cumulative dose trending toward NRRC-R-01-SR02 dose limit within projected 3 procedures.', tag: 'High priority' },
-    { title: 'Increase shielding for interventional cardiology cases in Cath Lab 1', why: 'Forecast model shows repeated high dose-rate readings above department baseline.', tag: 'Medium priority' },
-    { title: 'Schedule additional dosimeter calibration check', why: 'Two devices reporting readings outside expected variance range this week.', tag: 'Low priority' },
+    { title: 'Rotate ST-06 out of Cath Lab 3 pending dose review', why: 'Cumulative dose has crossed 90% of the annual ICRP Publication 103 limit for this shift cycle.', tag: 'High priority' },
+    { title: 'Increase shielding for PET/CT Suite tracer-handling procedures', why: 'Forecast model shows repeated elevated dose-rate readings above department baseline for ST-13.', tag: 'Medium priority' },
+    { title: 'Schedule additional dosimeter calibration check — Fluoroscopy Suite', why: 'Two devices reporting readings outside expected variance range this week.', tag: 'Low priority' },
   ];
 }
 
@@ -58,6 +62,8 @@ export function getExposureLog() {
     ['11:20', 'ST-07', 'Nuclear Medicine', 'Nuclear Scan', '40 µSv/h', '0.03 mSv'],
     ['12:55', 'ST-04', 'Cath Lab 1', 'Interventional Cardiology', '201 µSv/h', '0.16 mSv'],
     ['13:40', 'ST-09', 'CT Suite', 'CT Scan', '58 µSv/h', '0.05 mSv'],
+    ['14:10', 'ST-06', 'Cath Lab 3', 'Interventional Cardiology', '175 µSv/h', '0.13 mSv'],
+    ['15:02', 'ST-13', 'PET/CT Suite', 'PET Tracer Handling', '65 µSv/h', '0.05 mSv'],
   ];
 }
 
@@ -77,6 +83,8 @@ export function getInitialDeviceBindings() {
     { device: 'ALARAD-DSM-1017', staffId: 'ST-11', since: '07:05 today' },
     { device: 'ALARAD-DSM-1029', staffId: 'ST-02', since: '07:00 today' },
     { device: 'ALARAD-DSM-1033', staffId: 'ST-07', since: '06:55 today' },
+    { device: 'ALARAD-DSM-1051', staffId: 'ST-06', since: '07:00 today' },
+    { device: 'ALARAD-DSM-1064', staffId: 'ST-13', since: '07:10 today' },
   ];
 }
 
@@ -90,12 +98,14 @@ export function getInitialRotationLog() {
 
 export function getFloorRooms() {
   return [
-    { name: 'Cath Lab 1', x: 20, y: 20, w: 180, h: 110 },
-    { name: 'Cath Lab 2', x: 20, y: 150, w: 180, h: 110 },
-    { name: 'Fluoroscopy Suite', x: 220, y: 20, w: 180, h: 80 },
-    { name: 'Nuclear Medicine', x: 360, y: 150, w: 180, h: 110 },
-    { name: 'CT Suite', x: 360, y: 20, w: 180, h: 80 },
-    { name: 'Corridor', x: 220, y: 120, w: 120, h: 140 },
+    { name: 'Cath Lab 1', x: 10, y: 20, w: 130, h: 110 },
+    { name: 'Cath Lab 2', x: 150, y: 20, w: 130, h: 110 },
+    { name: 'Cath Lab 3', x: 290, y: 20, w: 130, h: 110 },
+    { name: 'Fluoroscopy Suite', x: 430, y: 20, w: 120, h: 110 },
+    { name: 'Nuclear Medicine', x: 10, y: 150, w: 130, h: 110 },
+    { name: 'PET/CT Suite', x: 150, y: 150, w: 130, h: 110 },
+    { name: 'CT Suite', x: 290, y: 150, w: 130, h: 110 },
+    { name: 'Corridor', x: 430, y: 150, w: 120, h: 110 },
   ];
 }
 
@@ -104,7 +114,7 @@ export function getKnowledgeBase() {
   return [
     {
       keywords: ['dose limit', 'approach', 'limit', 'exceed', 'occupational dose', 'regulatory limit'],
-      answer: 'When a projected or measured occupational dose approaches the applicable limit, ALARAD flags the reading through its risk-prediction model, sends a real-time alert to the staff member’s smartwatch, and escalates the case to the hospital dashboard. The event is checked against applicable dose limits before any escalation proceeds, and a Radiation Safety Officer reviews the case before further action is taken.',
+      answer: 'The applicable occupational limit is 20 mSv per year, averaged over defined periods of 5 years, with no single year exceeding 50 mSv (ICRP Publication 103). When a projected or measured dose approaches this limit, ALARAD flags the reading through its risk-prediction model, sends a real-time alert to the staff member’s smartwatch, and escalates the case to the hospital dashboard. The event is checked against this limit before any escalation proceeds, and a Radiation Safety Officer reviews the case before further action is taken.',
       source: 'NRRC — Compliance with Dose Limits', document: 'NRRC-R-01-SR02', page: 2,
       action: 'Review by Radiation Safety Officer',
       url: 'https://istitlaa.ncc.gov.sa/ar/energy/nrrc/compliancewithdoeslimits/Documents/Compliance%20with%20Dose%20Limits-NRRC-R-01-SR02.pdf',
