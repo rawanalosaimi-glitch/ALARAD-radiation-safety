@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALARAD — Radiation Safety AI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Tajawal:wght@400;500;700&display=swap');
+
+:root{
+  --bg:#080b14;
+  --bg2:#0c1120;
+  --panel:#101728;
+  --panel2:#0d1422;
+  --border:#1f2a42;
+  --border-soft:#182238;
+  --cyan:#22d3ee;
+  --green:#34d399;
+  --red:#f87171;
+  --red-glow:#ef444433;
+  --amber:#fbbf24;
+  --purple:#a78bfa;
+  --text:#e7edf9;
+  --muted:#8695b7;
+  --muted2:#5c6c8f;
+  --mono:'JetBrains Mono', ui-monospace, monospace;
+  --ar:'Tajawal', var(--mono);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #14213a55, transparent),
+    radial-gradient(900px 500px at 100% 0%, #0f2a2c55, transparent),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--mono);
+  font-size:14px;
+  min-height:100vh;
+}
+.ar{font-family:var(--ar);}
+::selection{background:var(--cyan);color:#001018;}
+a{color:var(--cyan);}
+button{font-family:inherit;cursor:pointer;}
+
+/* ===== Shell ===== */
+.shell{display:flex;min-height:100vh;}
+
+/* ===== Sidebar ===== */
+.sidebar{
+  width:230px;flex:none;
+  background:var(--panel2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  padding:16px 12px;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 6px 16px;}
+.brand-badge{
+  width:34px;height:34px;border-radius:10px;
+  background:linear-gradient(135deg,#0e2540,#0a1930);
+  border:1px solid var(--cyan);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--cyan);font-size:16px;
+  box-shadow:0 0 14px #22d3ee33;
+}
+.brand-name{font-weight:800;letter-spacing:1px;font-size:15px;color:#fff;}
+.brand-sub{font-size:9.5px;color:var(--cyan);letter-spacing:1.5px;}
+.status-pill{
+  background:#0d2118;border:1px solid #1c4a33;border-radius:10px;
+  padding:9px 10px;margin-bottom:14px;
+}
+.status-pill .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 8px var(--green);margin-right:6px;animation:pulse 2s infinite;}
+.status-pill .lbl{color:var(--green);font-weight:700;font-size:11.5px;}
+.status-pill .sub{color:var(--muted);font-size:10.5px;margin-top:2px;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+.nav{display:flex;flex-direction:column;gap:2px;flex:1;}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 10px;border-radius:8px;
+  color:var(--muted);text-decoration:none;
+  border:1px solid transparent;
+  font-size:12.5px;
+  transition:.15s;position:relative;
+}
+.nav-item .icon{width:16px;text-align:center;font-size:13px;}
+.nav-item .txt{display:flex;flex-direction:column;line-height:1.25;}
+.nav-item .txt .ar{font-size:10px;color:var(--muted2);}
+.nav-item:hover{background:#0f1a2e;color:var(--text);}
+.nav-item.active{
+  background:linear-gradient(90deg,#123049,#0f1a2e);
+  border-color:#1e4a6a;color:#fff;
+}
+.nav-item.active .icon{color:var(--cyan);}
+.nav-badge{
+  margin-left:auto;background:var(--red);color:#fff;
+  font-size:9.5px;font-weight:700;border-radius:8px;
+  padding:1px 6px;
+}
+.sidebar-foot{padding:12px 6px 4px;color:var(--muted2);font-size:10px;border-top:1px solid var(--border);margin-top:8px;}
+
+/* ===== Main ===== */
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 22px;border-bottom:1px solid var(--border);
+  background:#0a0f1cdd;backdrop-filter:blur(6px);
+  position:sticky;top:0;z-index:20;
+}
+.live-pill{
+  display:flex;align-items:center;gap:7px;
+  background:#0d1a2e;border:1px solid var(--border);
+  padding:6px 12px;border-radius:20px;color:var(--cyan);font-size:11.5px;font-weight:600;
+}
+.live-pill .bar{width:2px;height:10px;background:var(--cyan);display:inline-block;animation:eq 1s infinite ease-in-out;}
+.live-pill .bar:nth-child(2){animation-delay:.2s;}
+.live-pill .bar:nth-child(3){animation-delay:.4s;}
+@keyframes eq{0%,100%{height:5px;}50%{height:12px;}}
+.profile{display:flex;align-items:center;gap:10px;}
+.profile .name{font-size:12.5px;font-weight:700;color:#fff;}
+.profile .role{font-size:10.5px;color:var(--muted);}
+.profile .avatar{
+  width:34px;height:34px;border-radius:50%;
+  background:linear-gradient(135deg,#2b3f66,#141d33);
+  border:1px solid var(--cyan);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--cyan);
+}
+
+.view{display:none;padding:20px 22px 60px;animation:fade .25s ease;}
+.view.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+.page-title{font-size:22px;font-weight:800;color:#fff;margin:0 0 2px;}
+.page-sub{color:var(--muted);font-size:12.5px;margin:0 0 18px;}
+
+/* ===== Alert banner ===== */
+.crit-banner{
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(90deg,#2a0f13,#1a0d14);
+  border:1px solid #5c2430;color:#ffb3ae;
+  padding:13px 16px;border-radius:10px;margin-bottom:18px;
+  box-shadow:0 0 30px var(--red-glow);
+}
+.crit-banner .ico{font-size:18px;}
+.crit-banner b{color:#ff8a83;}
+.crit-banner .spacer{flex:1;}
+.btn{
+  border:1px solid var(--border);background:#101a2e;color:var(--text);
+  padding:7px 13px;border-radius:7px;font-size:11.5px;font-weight:600;
+}
+.btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.btn.red{border-color:#7a2e33;color:#ff8a83;background:#1c0f13;}
+.btn.red:hover{background:#2a1216;}
+.btn.solid{background:var(--cyan);color:#001018;border-color:var(--cyan);}
+.btn.solid:hover{filter:brightness(1.1);}
+.btn.green{background:var(--green);color:#001a10;border-color:var(--green);}
+.btn.ghost{background:transparent;}
+.btn.sm{padding:5px 10px;font-size:10.5px;}
+
+/* ===== Grid / cards ===== */
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px;}
+.grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;}
+@media(max-width:1100px){.grid4{grid-template-columns:repeat(2,1fr);}.grid2{grid-template-columns:1fr;}}
+.card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:12px;padding:16px;
+}
+.kpi .icon{
+  width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+  font-size:15px;margin-bottom:10px;
+}
+.kpi .val{font-size:26px;font-weight:800;color:#fff;}
+.kpi .lbl{font-size:12px;color:var(--muted);margin-top:2px;}
+.kpi .sub{font-size:10.5px;color:var(--muted2);margin-top:1px;}
+.icon.blue{background:#0e2138;color:var(--cyan);}
+.icon.green{background:#0d2118;color:var(--green);}
+.icon.red{background:#2a1216;color:var(--red);}
+.icon.purple{background:#201a33;color:var(--purple);}
+
+.card h3{margin:0 0 4px;font-size:14px;color:#fff;}
+.card .ar-title{font-size:11px;color:var(--muted);margin-bottom:12px;}
+.tag-warn{
+  background:#241a08;border:1px solid #6a4d13;color:var(--amber);
+  font-size:9.5px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.5px;
+}
+.dose-row{display:flex;justify-content:space-between;gap:8px;margin-top:6px;}
+.dose-cell{flex:1;}
+.dose-cell .k{font-size:10.5px;color:var(--muted);}
+.dose-cell .v{font-size:18px;font-weight:800;color:var(--cyan);margin-top:2px;}
+.dose-cell.hi .v{color:var(--red);}
+.foot-note{font-size:10.5px;color:var(--muted2);font-style:italic;margin-top:12px;border-top:1px solid var(--border-soft);padding-top:10px;}
+
+/* trend viz */
+.trend-wrap{display:flex;align-items:flex-end;gap:6px;height:100px;margin-top:6px;}
+.trend-bar{flex:1;background:linear-gradient(180deg,#22d3ee,#0e5b6b);border-radius:4px 4px 0 0;position:relative;min-height:4px;}
+.trend-bar span{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:9px;color:var(--muted2);}
+.dept-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.dept-row .name{width:110px;font-size:11px;color:var(--muted);flex:none;}
+.dept-bar-bg{flex:1;height:8px;background:#111a2c;border-radius:5px;overflow:hidden;}
+.dept-bar{height:100%;background:linear-gradient(90deg,#22d3ee,#a78bfa);}
+.dept-row .num{width:48px;text-align:right;font-size:11px;color:var(--text);font-weight:700;}
+
+/* tables */
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{text-align:left;color:var(--muted);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;border-bottom:1px solid var(--border);}
+td{padding:10px;border-bottom:1px solid var(--border-soft);color:var(--text);}
+tr:hover td{background:#0d1526;}
+.badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px;display:inline-block;}
+.badge.normal{background:#0d2118;color:var(--green);border:1px solid #1c4a33;}
+.badge.elevated{background:#241a08;color:var(--amber);border:1px solid #6a4d13;}
+.badge.critical{background:#2a1216;color:var(--red);border:1px solid #6a2530;}
+
+/* Alerts list */
+.alert-item{display:flex;gap:12px;padding:13px;border:1px solid var(--border);border-radius:10px;margin-bottom:10px;background:var(--panel);}
+.alert-item.critical{border-color:#5c2430;background:#180d10;}
+.alert-item .dot2{width:9px;height:9px;border-radius:50%;margin-top:4px;flex:none;}
+.alert-item.critical .dot2{background:var(--red);box-shadow:0 0 8px var(--red);}
+.alert-item.warning .dot2{background:var(--amber);}
+.alert-item.info .dot2{background:var(--cyan);}
+.alert-item .body{flex:1;}
+.alert-item .title{font-weight:700;color:#fff;font-size:12.5px;}
+.alert-item .meta{font-size:10.5px;color:var(--muted);margin-top:2px;}
+.alert-item .actions{display:flex;gap:6px;margin-top:8px;}
+
+/* toast */
+#toastHost{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:10px;max-width:320px;}
+.toast{
+  background:#0e1626;border:1px solid var(--cyan);border-radius:10px;padding:12px 14px;
+  box-shadow:0 8px 30px #000a, 0 0 20px #22d3ee2e;
+  animation:slidein .25s ease;font-size:12px;
+}
+.toast.crit{border-color:var(--red);box-shadow:0 8px 30px #000a,0 0 20px #f8717133;}
+.toast .t-title{font-weight:800;color:#fff;font-size:12px;margin-bottom:2px;}
+.toast .t-body{color:var(--muted);font-size:11px;}
+@keyframes slidein{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:none;}}
+
+/* Emergency / GPS */
+.floor-wrap{display:grid;grid-template-columns:1.4fr 1fr;gap:14px;}
+@media(max-width:1000px){.floor-wrap{grid-template-columns:1fr;}}
+.floor-map{width:100%;height:auto;background:#0a1020;border-radius:10px;border:1px solid var(--border);}
+.room-lbl{fill:var(--muted2);font-size:9px;font-family:var(--mono);}
+.room-rect{fill:#0d1526;stroke:#1c2740;stroke-width:1;}
+.staff-dot{cursor:pointer;}
+.staff-dot circle{transition:.15s;}
+.staff-dot:hover circle{r:8;}
+.staff-info{margin-top:10px;}
+.staff-list-mini{display:flex;flex-direction:column;gap:8px;margin-top:10px;}
+.staff-mini-row{
+  display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;cursor:pointer;
+}
+.staff-mini-row:hover{border-color:var(--cyan);}
+.staff-mini-row.sel{border-color:var(--cyan);background:#0d1a2c;}
+.staff-mini-row .sdot{width:8px;height:8px;border-radius:50%;flex:none;}
+.staff-mini-row .sname{font-size:11.5px;font-weight:700;color:#fff;flex:1;}
+.staff-mini-row .sroom{font-size:10px;color:var(--muted);}
+
+/* Ask AI */
+.chat-wrap{display:grid;grid-template-columns:1fr 260px;gap:14px;}
+@media(max-width:1000px){.chat-wrap{grid-template-columns:1fr;}}
+.pipeline{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;}
+.pipe-step{
+  background:#0d1526;border:1px solid var(--border);border-radius:7px;
+  padding:6px 10px;font-size:10px;color:var(--muted2);display:flex;align-items:center;gap:6px;
+}
+.pipe-step.lit{border-color:var(--cyan);color:var(--cyan);background:#0e2233;box-shadow:0 0 10px #22d3ee22;}
+.pipe-arrow{color:var(--muted2);font-size:11px;align-self:center;}
+.qbox{display:flex;gap:8px;}
+.qbox input{
+  flex:1;background:#0a1020;border:1px solid var(--border);border-radius:8px;color:var(--text);
+  padding:12px 14px;font-family:var(--mono);font-size:13px;
+}
+.qbox input:focus{outline:none;border-color:var(--cyan);}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 4px;}
+.chip{
+  background:#0d1526;border:1px solid var(--border);color:var(--muted);
+  padding:6px 11px;border-radius:16px;font-size:10.5px;
+}
+.chip:hover{border-color:var(--cyan);color:var(--cyan);}
+.answer-card{margin-top:16px;}
+.answer-card .ai-lbl{color:var(--cyan);font-weight:800;font-size:11px;letter-spacing:.5px;margin-bottom:6px;}
+.answer-card .ai-text{color:var(--text);font-size:13px;line-height:1.6;margin-bottom:14px;}
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.meta-box{background:#0a1020;border:1px solid var(--border-soft);border-radius:8px;padding:10px 12px;}
+.meta-box .k{font-size:9.5px;color:var(--muted2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+.meta-box .v{font-size:12px;color:var(--text);font-weight:600;}
+.meta-box.action .v{color:var(--amber);}
+.meta-box a.v{color:var(--cyan);text-decoration:none;}
+.meta-box a.v:hover{text-decoration:underline;}
+.kb-list{display:flex;flex-direction:column;gap:7px;margin-top:8px;}
+.kb-tag{font-size:10.5px;color:var(--muted);padding:6px 8px;border:1px solid var(--border-soft);border-radius:6px;}
+
+/* Anomaly detection form */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field label{display:block;font-size:10.5px;color:var(--muted);margin-bottom:5px;}
+.field select,.field input[type=number]{
+  width:100%;background:#0a1020;border:1px solid var(--border);border-radius:7px;color:var(--text);
+  padding:9px 10px;font-family:var(--mono);font-size:12.5px;
+}
+.field select:focus,.field input:focus{outline:none;border-color:var(--cyan);}
+.result-box{margin-top:16px;padding:14px;border-radius:10px;border:1px solid var(--border);background:#0a1020;}
+.result-box.risk-low{border-color:#1c4a33;}
+.result-box.risk-med{border-color:#6a4d13;}
+.result-box.risk-high{border-color:#6a2530;}
+.risk-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-weight:800;font-size:11px;letter-spacing:.5px;}
+.risk-badge.low{background:#0d2118;color:var(--green);}
+.risk-badge.med{background:#241a08;color:var(--amber);}
+.risk-badge.high{background:#2a1216;color:var(--red);}
+.calc-line{font-size:11px;color:var(--muted);margin:4px 0;font-family:var(--mono);}
+.calc-line b{color:var(--text);}
+.spark{margin-top:10px;}
+
+/* policy mapping */
+.flowbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px;}
+.flow-node{
+  background:#0d1526;border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:11px;color:var(--text);font-weight:700;
+}
+.flow-node.hl{border-color:var(--cyan);color:var(--cyan);}
+.flow-sep{color:var(--muted2);}
+.node-code{
+  display:inline-block;width:26px;height:26px;border-radius:6px;background:#0e2138;color:var(--cyan);
+  text-align:center;line-height:26px;font-weight:800;font-size:11px;margin-right:8px;
+}
+
+.two-col-note{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px;}
+@media(max-width:1000px){.two-col-note{grid-template-columns:1fr;}}
+.honest-box{border-left:3px solid var(--purple);}
+.honest-box h4{margin:0 0 8px;color:var(--purple);font-size:12.5px;}
+.honest-box p{font-size:11.5px;color:var(--muted);line-height:1.6;margin:0 0 8px;}
+
+.rtl{direction:rtl;text-align:right;}
+
+/* ===== AI disclaimer ===== */
+.ai-disclaimer{
+  display:flex;gap:10px;align-items:flex-start;
+  background:#0d1a2e;border:1px solid #2a3a5c;border-left:3px solid var(--cyan);
+  border-radius:8px;padding:11px 14px;margin-bottom:16px;font-size:11.5px;color:var(--muted);
+}
+.ai-disclaimer b{color:var(--cyan);}
+.ai-disclaimer .ico{font-size:15px;flex:none;}
+
+/* ===== Wearable / sensors ===== */
+.sensor-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:10px 0 4px;}
+@media(max-width:1100px){.sensor-grid{grid-template-columns:repeat(2,1fr);}}
+.sensor-card{background:#0a1020;border:1px solid var(--border);border-radius:9px;padding:11px;text-align:center;}
+.sensor-card .sic{font-size:18px;margin-bottom:4px;}
+.sensor-card .sname{font-size:10.5px;color:var(--muted);}
+.sensor-card .sval{font-size:15px;font-weight:800;color:#fff;margin-top:3px;}
+.sensor-card .sunit{font-size:9.5px;color:var(--muted2);}
+
+.device-row{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--border);border-radius:9px;margin-bottom:8px;}
+.device-row .did{font-family:var(--mono);font-size:11px;color:var(--cyan);font-weight:700;width:110px;flex:none;}
+.device-row .arrow{color:var(--muted2);}
+.device-row .who{flex:1;font-size:12px;color:#fff;font-weight:700;}
+.device-row .since{font-size:10px;color:var(--muted2);}
+
+.rotation-log{display:flex;flex-direction:column;gap:0;margin-top:6px;}
+.rotation-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border-soft);font-size:11.5px;}
+.rotation-item:last-child{border-bottom:none;}
+.rotation-item .time{width:70px;flex:none;color:var(--muted2);}
+.rotation-item .txt{color:var(--text);}
+.rotation-item .txt b{color:#fff;}
+
+/* ===== Security ===== */
+.sec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:900px){.sec-grid{grid-template-columns:1fr;}}
+.sec-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.sec-card .sec-ico{width:36px;height:36px;border-radius:9px;background:#0e2138;color:var(--cyan);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:10px;}
+.sec-card h4{margin:0 0 6px;color:#fff;font-size:13px;}
+.sec-card p{margin:0;color:var(--muted);font-size:11.5px;line-height:1.6;}
+.sec-list{margin:8px 0 0;padding-left:16px;color:var(--muted);font-size:11px;line-height:1.8;}
+
+.code-block{
+  background:#070b14;border:1px solid var(--border);border-radius:9px;padding:14px 16px;
+  font-family:var(--mono);font-size:11px;color:#9fd4ff;overflow-x:auto;line-height:1.6;white-space:pre;
+}
+.code-block .k{color:var(--cyan);}
+.code-block .s{color:#c3e88d;}
+.code-block .c{color:var(--muted2);}
+
+.flow-diagram{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:14px 0 4px;}
+.flow-box{
+  background:#0d1526;border:1px solid var(--border);border-radius:9px;padding:12px 14px;text-align:center;min-width:110px;
+}
+.flow-box .fi{font-size:16px;margin-bottom:4px;}
+.flow-box .ft{font-size:10.5px;font-weight:700;color:#fff;}
+.flow-box .fs{font-size:9px;color:var(--muted2);}
+.flow-box.risk{border-color:#6a2530;}
+.flow-box.risk .ft{color:var(--red);}
+.flow-arrow2{color:var(--cyan);font-size:16px;}
+</style>
+</head>
+<body>
+
+<div id="toastHost"></div>
+
+<div class="shell">
+
+  <!-- ================= SIDEBAR ================= -->
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-badge">☢</div>
+      <div>
+        <div class="brand-name">ALARAD</div>
+        <div class="brand-sub">RADIATION SAFETY AI</div>
+      </div>
+    </div>
+
+    <div class="status-pill">
+      <div><span class="dot"></span><span class="lbl">SYSTEM ONLINE</span></div>
+      <div class="sub">24 devices connected</div>
+    </div>
+
+    <div class="nav" id="navList">
+      <a class="nav-item active" data-view="dashboard"><span class="icon">▦</span><span class="txt">Dashboard</span></a>
+      <a class="nav-item" data-view="staff"><span class="icon">◎</span><span class="txt">Staff Monitor</span></a>
+      <a class="nav-item" data-view="alerts"><span class="icon">◈</span><span class="txt">Alerts</span><span class="nav-badge" id="alertCountBadge">3</span></a>
+      <a class="nav-item" data-view="airec"><span class="icon">✦</span><span class="txt">AI Recommendations</span></a>
+      <a class="nav-item" data-view="exposure"><span class="icon">∿</span><span class="txt">Exposure Log</span></a>
+      <a class="nav-item" data-view="anomaly"><span class="icon">⚡</span><span class="txt">Anomaly Detection</span></a>
+      <a class="nav-item" data-view="wearable"><span class="icon">⌚</span><span class="txt">Wearable & Rotation</span></a>
+      <a class="nav-item" data-view="security"><span class="icon">🔒</span><span class="txt">Data Security</span></a>
+      <a class="nav-item" data-view="emergency"><span class="icon">⌖</span><span class="txt">Emergency / GPS</span></a>
+      <a class="nav-item" data-view="askai"><span class="icon">◐</span><span class="txt">Ask ALARAD AI</span></a>
+      <a class="nav-item" data-view="policy"><span class="icon">▤</span><span class="txt">Policy Mapping</span></a>
+    </div>
+
+    <div class="sidebar-foot">ALARAD v1.0 — KSA<br>AI-Powered Radiation Safety<br>Prototype — not for clinical use</div>
+  </div>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <div class="topbar">
+      <div class="live-pill"><span class="bar"></span><span class="bar"></span><span class="bar"></span> LIVE MONITORING</div>
+      <div class="profile">
+        <div style="text-align:right;">
+          <div class="name">Dr. Radiation Safety Officer</div>
+          <div class="role">King Fahad Medical City</div>
+        </div>
+        <div class="avatar">RSO</div>
+      </div>
+    </div>
+
+    <!-- ============ DASHBOARD ============ -->
+    <div class="view active" id="view-dashboard">
+      <h1 class="page-title">Hospital Radiation Dashboard</h1>
+
+      <div class="crit-banner" id="critBanner" style="display:flex;">
+        <span class="ico">⚠</span>
+        <div><b id="critCount">2</b> staff at critical exposure level — Immediate action required.</div>
+        <div class="spacer"></div>
+        <button class="btn red sm" onclick="showView('alerts')">View All</button>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <button class="btn red" onclick="simulateLeak()">⚡ Simulate Radiation Leak Event (Demo)</button>
+        <span style="color:var(--muted2);font-size:10.5px;margin-left:10px;">Triggers real-time anomaly alert → smartwatch + dashboard + RSO escalation, per Scenario A.</span>
+      </div>
+
+      <div class="grid4">
+        <div class="card kpi"><div class="icon blue">◎</div><div class="val" id="kpiStaff">6</div><div class="lbl">Active Staff</div><div class="sub">Under monitoring</div></div>
+        <div class="card kpi"><div class="icon green">∿</div><div class="val" id="kpiDose">9.0 mSv</div><div class="lbl">Avg Dose Today</div><div class="sub">Limit: 20 mSv/year</div></div>
+        <div class="card kpi"><div class="icon red">◈</div><div class="val" id="kpiAlerts">3</div><div class="lbl">Active Alerts</div><div class="sub" id="kpiAlertsSub">1 critical</div></div>
+        <div class="card kpi"><div class="icon purple">✦</div><div class="val">3</div><div class="lbl">AI Recommendations</div><div class="sub">Pending review</div></div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div><h3>Dose Summary — Hospital-Wide</h3>
+</div>
+            <span class="tag-warn">⚠ ILLUSTRATIVE PROTOTYPE VALUES</span>
+          </div>
+          <div class="dose-row">
+            <div class="dose-cell"><div class="k">Today</div><div class="v">0.42 <small style="font-size:11px;">mSv</small></div></div>
+            <div class="dose-cell"><div class="k">This Week</div><div class="v">2.10 <small style="font-size:11px;">mSv</small></div></div>
+            <div class="dose-cell"><div class="k">This Month</div><div class="v">8.40 <small style="font-size:11px;">mSv</small></div></div>
+            <div class="dose-cell hi"><div class="k">This Year</div><div class="v">86.70 <small style="font-size:11px;">mSv</small></div></div>
+          </div>
+          <div class="foot-note">These are illustrative prototype values and must be replaced with data from calibrated dosimeters before clinical use.</div>
+        </div>
+
+        <div class="card">
+          <h3>Avg Dose by Department</h3>
+          <div id="deptBars"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px;">
+        <h3>Hospital-Wide Dose Trend (7 days)</h3>
+        <div class="trend-wrap" id="trendBars" style="margin-bottom:14px;"></div>
+      </div>
+    </div>
+
+    <!-- ============ STAFF MONITOR ============ -->
+    <div class="view" id="view-staff">
+      <h1 class="page-title">Staff Monitor</h1>
+      <div class="card">
+        <table>
+          <thead><tr><th>Staff / Employee ID</th><th>Role</th><th>Department</th><th>Today's Dose</th><th>Cumulative (yr)</th><th>Status</th><th></th></tr></thead>
+          <tbody id="staffTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ ALERTS ============ -->
+    <div class="view" id="view-alerts">
+      <h1 class="page-title">Alerts</h1>
+      <div id="alertsList"></div>
+    </div>
+
+    <!-- ============ AI RECOMMENDATIONS ============ -->
+    <div class="view" id="view-airec">
+      <h1 class="page-title">AI Recommendations</h1>
+      <div class="ai-disclaimer"><span class="ico">ℹ</span><div><b>Not a medical decision:</b> these are safety alerts and workflow recommendations only (rotation, distance, shielding). Any clinical judgment stays with qualified staff and the Radiation Safety Officer.</div></div>
+      <div id="recList"></div>
+    </div>
+
+    <!-- ============ EXPOSURE LOG ============ -->
+    <div class="view" id="view-exposure">
+      <h1 class="page-title">Exposure Log</h1>
+      <div class="card">
+        <table>
+          <thead><tr><th>Timestamp</th><th>Staff</th><th>Room</th><th>Procedure</th><th>Dose Rate (mSv/h)</th><th>Dose Recorded</th></tr></thead>
+          <tbody id="expTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============ ANOMALY DETECTION ============ -->
+    <div class="view" id="view-anomaly">
+      <h1 class="page-title">Anomaly Detection</h1>
+      <div class="ai-disclaimer"><span class="ico">ℹ</span><div><b>Not a medical decision:</b> this model outputs a risk score, forecast, and alert/recommendation only — never a diagnosis or treatment instruction.</div></div>
+
+      <div class="grid2">
+        <div class="card">
+          <h3>Model Input</h3>
+          <div class="form-grid">
+            <div class="field"><label>Room / Location</label>
+              <select id="inRoom"><option>Cath Lab 1</option><option>Cath Lab 2</option><option>Fluoroscopy Suite</option><option>Nuclear Medicine</option><option>CT Suite</option></select>
+            </div>
+            <div class="field"><label>Procedure Type</label>
+              <select id="inProc"><option value="1.0">Diagnostic Fluoroscopy (baseline ×1.0)</option><option value="1.8">Interventional Cardiology (×1.8)</option><option value="1.4">Cath Lab Angiography (×1.4)</option><option value="0.6">Nuclear Medicine Scan (×0.6)</option></select>
+            </div>
+            <div class="field"><label>Measured Dose Rate (µSv/h)</label><input type="number" id="inRate" value="180" min="0"></div>
+            <div class="field"><label>Duration (minutes)</label><input type="number" id="inDur" value="45" min="1"></div>
+            <div class="field"><label>Distance from Source (m)</label><input type="number" id="inDist" value="1.0" min="0.2" step="0.1"></div>
+            <div class="field"><label>Shielding Used</label>
+              <select id="inShield"><option value="1">No</option><option value="0.4">Lead apron</option><option value="0.15">Mobile lead shield</option></select>
+            </div>
+          </div>
+          <button class="btn solid" style="margin-top:14px;" onclick="runAnomalyModel()">▶ Recalculate Model</button>
+          <div id="anomalyResult"></div>
+        </div>
+
+        <div class="card honest-box">
+          <h4>Model Honesty Note</h4>
+          <p>This is a lightweight, fully computed statistical model — not a lookup table. It uses: (1) a procedure-baseline expected dose-rate table, (2) an inverse-square distance correction, (3) a shielding attenuation factor, (4) a rolling 6-point trailing series with linear-regression forecasting, and (5) a z-score-style deviation check to flag anomalies. Every value below is recalculated live from your inputs.</p>
+          <p>Production version: replace the baseline table with a trained time-series model (e.g. Prophet / LSTM) fitted on real dosimeter history, and replace the linear trend with the model's own forecast output.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ WEARABLE & ROTATION ============ -->
+    <div class="view" id="view-wearable">
+      <h1 class="page-title">Wearable Device & Staff Rotation</h1>
+
+      <div class="card" style="margin-bottom:14px;">
+        <h3>Data Sources Collected by the Wearable</h3>
+        <div class="sensor-grid" id="sensorGrid"></div>
+        <div class="foot-note">All five streams are timestamped and tagged with the wearer's Employee ID before transmission, so every reading is traceable to a specific staff member and shift.</div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <h3>Device ↔ Employee ID Binding</h3>
+          <div id="deviceBindings"></div>
+        </div>
+        <div class="card">
+          <h3>Staff Rotation Log</h3>
+          <div class="rotation-log" id="rotationLog"></div>
+          <button class="btn sm" style="margin-top:10px;" onclick="rotateDevice()">↻ Simulate Shift-Change Handoff</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ DATA SECURITY ============ -->
+    <div class="view" id="view-security">
+      <h1 class="page-title">Data Security</h1>
+
+      <div class="sec-grid" style="margin-bottom:14px;">
+        <div class="sec-card">
+          <div class="sec-ico">📡</div>
+          <h4>Secure Connection</h4>
+          <p>Wearable → mobile app → cloud runs over an authenticated TLS session; the device only transmits to the paired ALARAD gateway, never to an open network.</p>
+          <ul class="sec-list"><li>TLS 1.2+ channel</li><li>Certificate-pinned mobile app</li><li>No data leaves the hospital OT/IT boundary unencrypted</li></ul>
+        </div>
+        <div class="sec-card">
+          <div class="sec-ico">🔐</div>
+          <h4>Encryption</h4>
+          <p>Data is encrypted in transit and at rest, so dose, biometric, and location data cannot be read if intercepted or if storage is accessed directly.</p>
+          <ul class="sec-list"><li>AES-256 at rest</li><li>End-to-end encrypted transmission</li><li>Encrypted backups, key rotation</li></ul>
+        </div>
+        <div class="sec-card">
+          <div class="sec-ico">🪪</div>
+          <h4>Authentication</h4>
+          <p>Every device and dashboard session is tied to a verified Employee ID; only authorized RSO/admin accounts can view hospital-wide data.</p>
+          <ul class="sec-list"><li>Device pairing tied to Employee ID</li><li>Role-based dashboard access (RSO / admin / staff)</li><li>Session tokens, audit-logged access</li></ul>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px;">
+        <h3>Data Flow: Sensors → Secure Channel → AI → Risk / Alert</h3>
+        <div class="flow-diagram">
+          <div class="flow-box"><div class="fi">⌚</div><div class="ft">Wearable Sensors</div><div class="fs">dose · HR · RR · GPS · shift</div></div>
+          <div class="flow-arrow2">→</div>
+          <div class="flow-box"><div class="fi">🔒</div><div class="ft">Encrypted Channel</div><div class="fs">TLS + authenticated pairing</div></div>
+          <div class="flow-arrow2">→</div>
+          <div class="flow-box"><div class="fi">☁</div><div class="ft">Cloud Platform</div><div class="fs">structured, Employee-ID tagged</div></div>
+          <div class="flow-arrow2">→</div>
+          <div class="flow-box"><div class="fi">✦</div><div class="ft">AI Engine</div><div class="fs">forecast · risk · anomaly</div></div>
+          <div class="flow-arrow2">→</div>
+          <div class="flow-box risk"><div class="fi">⚠</div><div class="ft">Risk Score / Alert</div><div class="fs">to smartwatch + RSO dashboard</div></div>
+        </div>
+        <div class="ai-disclaimer" style="margin-top:14px;">
+          <span class="ico">ℹ</span>
+          <div><b>AI scope:</b> the AI engine outputs a risk score, forecast, or alert/recommendation only. It never outputs a medical diagnosis or treatment decision — all clinical and safety decisions remain with the Radiation Safety Officer and qualified staff.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Standardized Data / API (simplified)</h3>
+        <p style="color:var(--muted);font-size:11.5px;margin:4px 0 10px;">Every wearable reading is sent to the ALARAD API as one standardized JSON payload, so any hospital device or vendor can integrate using the same schema.</p>
+        <div class="code-block">POST /api/v1/readings
+<span class="c">{</span>
+  <span class="k">"employee_id"</span>: <span class="s">"ST-04"</span>,
+  <span class="k">"device_id"</span>: <span class="s">"ALARAD-DSM-1042"</span>,
+  <span class="k">"timestamp"</span>: <span class="s">"2026-08-28T12:55:00Z"</span>,
+  <span class="k">"work_shift"</span>: <span class="s">"Day — 07:00-15:00"</span>,
+  <span class="k">"location"</span>: <span class="c">{ "room": "Cath Lab 1", "lat": 24.7136, "lng": 46.6753 }</span>,
+  <span class="k">"radiation_dose_rate_uSv_h"</span>: <span class="c">201</span>,
+  <span class="k">"heart_rate_bpm"</span>: <span class="c">88</span>,
+  <span class="k">"respiratory_rate_bpm"</span>: <span class="c">16</span>,
+  <span class="k">"procedure"</span>: <span class="s">"Interventional Cardiology"</span>
+<span class="c">}</span>
+
+<span class="c">// AI response</span>
+<span class="c">{</span>
+  <span class="k">"risk_level"</span>: <span class="s">"critical"</span>,
+  <span class="k">"forecast_next_mSv"</span>: <span class="c">0.183</span>,
+  <span class="k">"recommendation"</span>: <span class="s">"Rotate staff / increase distance — not a medical decision"</span>
+<span class="c">}</span></div>
+      </div>
+    </div>
+
+    <!-- ============ EMERGENCY / GPS ============ -->
+    <div class="view" id="view-emergency">
+      <h1 class="page-title">Emergency / GPS</h1>
+
+      <div class="floor-wrap">
+        <div class="card">
+          <h3>Hospital Floor — Live Staff Position</h3>
+          <svg id="floorMap" class="floor-map" viewBox="0 0 560 320"></svg>
+        </div>
+        <div class="card">
+          <h3>Selected Staff</h3>
+          <div class="staff-info" id="staffInfoPanel"></div>
+          <div class="staff-list-mini" id="staffMiniList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ ASK ALARAD AI ============ -->
+    <div class="view" id="view-askai">
+      <h1 class="page-title">Ask ALARAD AI</h1>
+      <div class="ai-disclaimer"><span class="ico">ℹ</span><div><b>Not a medical decision:</b> answers cite regulatory/policy sources and give recommended actions only — they do not diagnose, treat, or replace RSO / clinical judgment.</div></div>
+
+      <div class="pipeline" id="pipelineTrace">
+        <div class="pipe-step" data-p="1">Official Documents</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step" data-p="2">Chunking</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step" data-p="3">Embeddings</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step" data-p="4">Vector DB</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step" data-p="5">Semantic Retrieval</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step" data-p="6">Top Chunks</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step" data-p="7">LLM</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step" data-p="8">Answer + Source + Page</div>
+      </div>
+
+      <div class="chat-wrap">
+        <div class="card">
+          <div class="qbox">
+            <input id="aiQuestion" placeholder="e.g. What should ALARAD do when an occupational dose approaches the applicable limit?" onkeydown="if(event.key==='Enter')askAlaradAI()">
+            <button class="btn solid" onclick="askAlaradAI()">Ask</button>
+          </div>
+          <div class="chips">
+            <span class="chip" onclick="askPreset(this)">What should ALARAD do when a dose approaches the limit?</span>
+            <span class="chip" onclick="askPreset(this)">What regulation applies to occupational dose limits in Saudi Arabia?</span>
+            <span class="chip" onclick="askPreset(this)">How does ALARAD detect a radiation leak?</span>
+            <span class="chip" onclick="askPreset(this)">Can exposure data be used in staff performance reviews?</span>
+            <span class="chip" onclick="askPreset(this)">How is data transmitted securely?</span>
+          </div>
+          <div id="aiAnswerArea"></div>
+        </div>
+
+        <div class="card">
+          <h3>Knowledge Base</h3>
+          <div class="kb-list" id="kbList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ POLICY MAPPING ============ -->
+    <div class="view" id="view-policy">
+      <h1 class="page-title">Policy Mapping</h1>
+
+      <div class="card" style="margin-bottom:16px;">
+        <div class="flowbar">
+          <div class="flow-node hl">AI Component</div><div class="flow-sep">→</div>
+          <div class="flow-node">Risk Detection</div><div class="flow-sep">→</div>
+          <div class="flow-node">Applicable Policy</div><div class="flow-sep">→</div>
+          <div class="flow-node">NRRC</div><div class="flow-sep">→</div>
+          <div class="flow-node">Requirement</div><div class="flow-sep">→</div>
+          <div class="flow-node">Action</div>
+        </div>
+        <table>
+          <thead><tr><th>Node</th><th>AI Component / Use Case</th><th>Risk Detection</th><th>Applicable Policy</th><th>Requirement</th><th>Action</th></tr></thead>
+          <tbody id="policyTable"></tbody>
+        </table>
+      </div>
+
+      <div class="two-col-note">
+        <div class="card honest-box">
+          <h4>RAG Architecture (as deployed in this prototype)</h4>
+          <p>Official Documents → PDF/Text extraction → Chunking → (Prototype: keyword-weighted match. Production: Embeddings) → Vector Database → User Question → Semantic Retrieval → Top relevant chunks → LLM → Answer + Source + Page.</p>
+          <p>The "Ask ALARAD AI" tab implements this full chain end-to-end using the 11 reference documents in the Knowledge Base panel; each answer cites the specific source document and a page reference, and low-confidence matches return "I could not find a matching topic" rather than a fabricated answer.</p>
+        </div>
+        <div class="card honest-box">
+          <h4>Human-in-the-Loop</h4>
+          <p>Model outputs (predicted dose, risk level, anomaly flags) are checked against dose limits; high-risk alerts are reviewed by a Radiation Safety Officer before escalation — enforced in this prototype via the "Report to Radiation Safety Officer" action on the Emergency / GPS page.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   NAVIGATION
+============================================================ */
+function showView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.querySelector('.nav-item[data-view="'+id+'"]').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.nav-item').forEach(n=>{
+  n.addEventListener('click',()=>showView(n.dataset.view));
+});
+
+/* ============================================================
+   TOASTS
+============================================================ */
+function toast(title, body, crit){
+  const host=document.getElementById('toastHost');
+  const el=document.createElement('div');
+  el.className='toast'+(crit?' crit':'');
+  el.innerHTML='<div class="t-title">'+title+'</div><div class="t-body">'+body+'</div>';
+  host.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='.4s';setTimeout(()=>el.remove(),400);},5200);
+}
+
+/* ============================================================
+   MOCK DATA
+============================================================ */
+const staff = [
+  {id:'ST-04', name:'T. Al-Qahtani', role:'Interventional Radiologist', dept:'Cath Lab 1', today:0.61, year:19.2, status:'critical', x:150, y:90},
+  {id:'ST-11', name:'F. Al-Harbi', role:'Radiologic Technologist', dept:'Fluoroscopy Suite', today:0.58, year:18.6, status:'critical', x:330, y:70},
+  {id:'ST-02', name:'S. Al-Dosari', role:'Cath Lab Staff', dept:'Cath Lab 2', today:0.29, year:9.8, status:'normal', x:150, y:200},
+  {id:'ST-07', name:'M. Al-Zahrani', role:'Nuclear Medicine Staff', dept:'Nuclear Medicine', today:0.18, year:6.1, status:'normal', x:420, y:210},
+  {id:'ST-09', name:'A. Al-Otaibi', role:'Radiation Therapist', dept:'CT Suite', today:0.22, year:7.4, status:'normal', x:420, y:90},
+  {id:'ST-15', name:'H. Al-Shammari', role:'Medical Physicist', dept:'Corridor / Rounds', today:0.09, year:3.2, status:'normal', x:270, y:150},
+];
+
+const depts = [
+  {name:'Cath Lab 1', v:9.8},{name:'Cath Lab 2', v:6.1},{name:'Fluoroscopy', v:7.4},
+  {name:'Nuclear Med.', v:4.2},{name:'CT Suite', v:3.6}
+];
+
+const trend = [0.31,0.28,0.44,0.39,0.52,0.35,0.42];
+
+let alerts = [
+  {id:1,level:'critical',title:'ST-04 approaching critical exposure level',meta:'Cath Lab 1 · 2 min ago · Source: Anomaly Detection model',ack:false},
+  {id:2,level:'warning',title:'ST-11 elevated dose rate this week',meta:'Fluoroscopy Suite · 40 min ago · Source: Time-series forecast',ack:false},
+  {id:3,level:'info',title:'Weekly compliance report generated',meta:'Hospital-wide · 3 hrs ago · Source: Automated reporting',ack:false},
+];
+
+const recs = [
+  {title:'Rotate ST-04 out of Cath Lab 1 for remainder of shift', why:'Cumulative dose trending toward NRRC-R-01-SR02 dose limit within projected 3 procedures.', tag:'High priority'},
+  {title:'Increase shielding for interventional cardiology cases in Cath Lab 1', why:'Forecast model shows repeated high dose-rate readings above department baseline.', tag:'Medium priority'},
+  {title:'Schedule additional dosimeter calibration check', why:'Two devices reporting readings outside expected variance range this week.', tag:'Low priority'},
+];
+
+const expLog = [
+  ['08:12','ST-04','Cath Lab 1','Interventional Cardiology','182 µSv/h','0.14 mSv'],
+  ['09:03','ST-11','Fluoroscopy Suite','Diagnostic Fluoroscopy','95 µSv/h','0.06 mSv'],
+  ['10:47','ST-02','Cath Lab 2','Angiography','110 µSv/h','0.09 mSv'],
+  ['11:20','ST-07','Nuclear Medicine','Nuclear Scan','40 µSv/h','0.03 mSv'],
+  ['12:55','ST-04','Cath Lab 1','Interventional Cardiology','201 µSv/h','0.16 mSv'],
+  ['13:40','ST-09','CT Suite','CT Scan','58 µSv/h','0.05 mSv'],
+];
+
+/* ============================================================
+   WEARABLE / EMPLOYEE ID BINDING / ROTATION
+============================================================ */
+const sensors = [
+  {ico:'☢', name:'Radiation Dose', val:'201', unit:'µSv/h'},
+  {ico:'♥', name:'Heart Rate', val:'88', unit:'bpm'},
+  {ico:'≋', name:'Respiratory Rate', val:'16', unit:'breaths/min'},
+  {ico:'⌖', name:'Location', val:'Cath Lab 1', unit:'indoor GPS'},
+  {ico:'🕒', name:'Work Shift', val:'Day', unit:'07:00–15:00'},
+];
+let deviceBindings = [
+  {device:'ALARAD-DSM-1042', staffId:'ST-04', since:'07:02 today'},
+  {device:'ALARAD-DSM-1017', staffId:'ST-11', since:'07:05 today'},
+  {device:'ALARAD-DSM-1029', staffId:'ST-02', since:'07:00 today'},
+  {device:'ALARAD-DSM-1033', staffId:'ST-07', since:'06:55 today'},
+];
+let rotationLog = [
+  {time:'07:02', text:'Device ALARAD-DSM-1042 paired to <b>ST-04 · T. Al-Qahtani</b> at shift start (Day shift).'},
+  {time:'Yesterday 15:00', text:'Device ALARAD-DSM-1042 handed off from <b>ST-06 · Night shift</b> to <b>ST-04</b> — dosimeter reading carried over, ownership re-bound to new Employee ID.'},
+  {time:'Yesterday 07:00', text:'Device ALARAD-DSM-1017 paired to <b>ST-11 · F. Al-Harbi</b> at shift start.'},
+];
+function renderSensorGrid(){
+  document.getElementById('sensorGrid').innerHTML = sensors.map(s=>
+    `<div class="sensor-card"><div class="sic">${s.ico}</div><div class="sname">${s.name}</div><div class="sval">${s.val}</div><div class="sunit">${s.unit}</div></div>`
+  ).join('');
+}
+function renderDeviceBindings(){
+  document.getElementById('deviceBindings').innerHTML = deviceBindings.map(b=>{
+    const s = staff.find(x=>x.id===b.staffId);
+    return `<div class="device-row">
+      <div class="did">${b.device}</div>
+      <div class="arrow">↔</div>
+      <div class="who">${s?s.name:'Unassigned'} <span style="color:var(--muted2);font-weight:400;">(${b.staffId})</span><div class="since">Paired since ${b.since}</div></div>
+      <span class="badge normal">ACTIVE</span>
+    </div>`;
+  }).join('');
+}
+function renderRotationLog(){
+  document.getElementById('rotationLog').innerHTML = rotationLog.map(r=>
+    `<div class="rotation-item"><div class="time">${r.time}</div><div class="txt">${r.text}</div></div>`
+  ).join('');
+}
+function rotateDevice(){
+  const options = staff.filter(s=>!deviceBindings.some(b=>b.staffId===s.id));
+  const incoming = options.length? options[0] : staff[Math.floor(Math.random()*staff.length)];
+  const binding = deviceBindings[0];
+  const outgoingStaff = staff.find(x=>x.id===binding.staffId);
+  rotationLog.unshift({time:'Just now', text:`Device ${binding.device} handed off from <b>${outgoingStaff?outgoingStaff.name:binding.staffId}</b> to <b>${incoming.name} (${incoming.id})</b> — Employee ID re-bound, dose counter continues under new owner.`});
+  binding.staffId = incoming.id;
+  binding.since = 'Just now';
+  renderRotationLog(); renderDeviceBindings();
+  toast('Device re-paired', binding.device+' now bound to Employee ID '+incoming.id+' ('+incoming.name+').');
+}
+renderSensorGrid(); renderDeviceBindings(); renderRotationLog();
+
+/* ============================================================
+   RENDER: DASHBOARD
+============================================================ */
+function renderDeptBars(){
+  const max=Math.max(...depts.map(d=>d.v));
+  document.getElementById('deptBars').innerHTML = depts.map(d=>
+    `<div class="dept-row"><div class="name">${d.name}</div><div class="dept-bar-bg"><div class="dept-bar" style="width:${(d.v/max*100).toFixed(0)}%"></div></div><div class="num">${d.v.toFixed(1)}</div></div>`
+  ).join('');
+}
+function renderTrend(){
+  const max=Math.max(...trend);
+  const days=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  document.getElementById('trendBars').innerHTML = trend.map((v,i)=>
+    `<div class="trend-bar" style="height:${(v/max*90+10).toFixed(0)}px"><span>${days[i]}</span></div>`
+  ).join('');
+}
+renderDeptBars(); renderTrend();
+
+/* ============================================================
+   RENDER: STAFF TABLE
+============================================================ */
+function renderStaff(){
+  document.getElementById('staffTable').innerHTML = staff.map(s=>
+    `<tr><td><b>${s.name}</b><br><span style="color:var(--muted2);font-size:10px;">${s.id}</span></td>
+    <td>${s.role}</td><td>${s.dept}</td><td>${s.today.toFixed(2)} mSv</td><td>${s.year.toFixed(1)} mSv</td>
+    <td><span class="badge ${s.status}">${s.status.toUpperCase()}</span></td>
+    <td><button class="btn sm" onclick="showView('emergency');selectStaff('${s.id}')">GPS ⌖</button></td></tr>`
+  ).join('');
+}
+renderStaff();
+
+/* ============================================================
+   RENDER: ALERTS
+============================================================ */
+function renderAlerts(){
+  const list=document.getElementById('alertsList');
+  if(alerts.length===0){ list.innerHTML='<div class="card" style="text-align:center;color:var(--muted);">No active alerts.</div>'; }
+  else{
+    list.innerHTML = alerts.map(a=>
+      `<div class="alert-item ${a.level}">
+        <div class="dot2"></div>
+        <div class="body">
+          <div class="title">${a.title}</div>
+          <div class="meta">${a.meta}${a.ack?' · <span style="color:var(--green)">Acknowledged</span>':''}</div>
+          <div class="actions">
+            ${!a.ack?`<button class="btn sm" onclick="ackAlert(${a.id})">Acknowledge</button>`:''}
+            <button class="btn sm red" onclick="showView('emergency')">Escalate to RSO</button>
+          </div>
+        </div>
+      </div>`
+    ).join('');
+  }
+  const activeCount = alerts.length;
+  const critCount = alerts.filter(a=>a.level==='critical').length;
+  document.getElementById('kpiAlerts').textContent = activeCount;
+  document.getElementById('kpiAlertsSub').textContent = critCount+' critical';
+  document.getElementById('alertCountBadge').textContent = activeCount;
+  document.getElementById('alertCountBadge').style.display = activeCount>0?'inline-block':'none';
+}
+function ackAlert(id){
+  alerts = alerts.map(a=> a.id===id? {...a, ack:true}: a);
+  renderAlerts();
+  toast('Alert acknowledged', 'Logged with timestamp for compliance record.');
+}
+renderAlerts();
+
+/* ============================================================
+   RENDER: AI RECOMMENDATIONS
+============================================================ */
+function renderRecs(){
+  document.getElementById('recList').innerHTML = recs.map(r=>
+    `<div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;">
+        <h3 style="margin:0;">${r.title}</h3>
+        <span class="tag-warn">${r.tag}</span>
+      </div>
+      <p style="color:var(--muted);font-size:12px;margin-top:8px;">${r.why}</p>
+      <div style="margin-top:10px;"><button class="btn sm solid">Apply Recommendation</button> <button class="btn sm ghost">Dismiss</button></div>
+    </div>`
+  ).join('');
+}
+renderRecs();
+
+/* ============================================================
+   RENDER: EXPOSURE LOG
+============================================================ */
+function renderExp(){
+  document.getElementById('expTable').innerHTML = expLog.map(r=>
+    `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`
+  ).join('');
+}
+renderExp();
+
+/* ============================================================
+   SIMULATE RADIATION LEAK (Scenario A)
+============================================================ */
+function simulateLeak(){
+  document.getElementById('critBanner').style.display='flex';
+  toast('⚠ Anomaly Detected', 'ST-04 · Cath Lab 1 — dose rate 3.4× above baseline. Real-time alert sent to smartwatch.', true);
+  setTimeout(()=>{
+    alerts.unshift({id:Date.now(),level:'critical',title:'Radiation leak suspected — Cath Lab 1 (shielding failure pattern)',meta:'Just now · Source: Anomaly Detection model · Escalated to RSO',ack:false});
+    renderAlerts();
+    toast('Escalated to Radiation Safety Officer', 'Event logged for NRRC-R-01-SR02 compliance review.', true);
+  }, 1200);
+}
+
+/* ============================================================
+   ANOMALY DETECTION MODEL (real, computed)
+============================================================ */
+const baselineRates = { // µSv/h expected baseline by room, before procedure multiplier
+  'Cath Lab 1': 90, 'Cath Lab 2': 85, 'Fluoroscopy Suite': 70, 'Nuclear Medicine': 35, 'CT Suite': 55
+};
+function seededSeries(seed, n){
+  // deterministic pseudo-random trailing series based on input seed
+  let x = seed % 97 + 1;
+  const out=[];
+  for(let i=0;i<n;i++){
+    x = (x*13 + 7) % 97;
+    out.push( (x/97)*0.6 + 0.7 ); // multiplier band 0.7 - 1.3
+  }
+  return out;
+}
+function linearForecast(points){
+  const n=points.length;
+  const xs=[...Array(n).keys()];
+  const xm=xs.reduce((a,b)=>a+b,0)/n, ym=points.reduce((a,b)=>a+b,0)/n;
+  let num=0,den=0;
+  for(let i=0;i<n;i++){ num+=(xs[i]-xm)*(points[i]-ym); den+=(xs[i]-xm)**2; }
+  const slope = den===0?0:num/den;
+  const intercept = ym - slope*xm;
+  return {slope, next:[n,n+1,n+2].map(x=>intercept+slope*x)};
+}
+function runAnomalyModel(){
+  const room=document.getElementById('inRoom').value;
+  const procMult=parseFloat(document.getElementById('inProc').value);
+  const rate=parseFloat(document.getElementById('inRate').value)||0;
+  const dur=parseFloat(document.getElementById('inDur').value)||0;
+  const dist=parseFloat(document.getElementById('inDist').value)||1;
+  const shield=parseFloat(document.getElementById('inShield').value);
+
+  const baseline = baselineRates[room]*procMult;
+  const distCorrected = rate / Math.max(0.2, (dist*dist)); // inverse-square approx relative to 1m
+  const effectiveRate = distCorrected * shield;
+  const cumulativeDose = (effectiveRate * (dur/60)) / 1000; // mSv
+
+  const deviation = (rate - baseline) / baseline; // z-score-like ratio
+  let riskClass, riskLabel;
+  if(deviation < 0.5 && cumulativeDose < 0.15){ riskClass='low'; riskLabel='LOW RISK'; }
+  else if(deviation < 1.5 && cumulativeDose < 0.35){ riskClass='med'; riskLabel='ELEVATED RISK'; }
+  else { riskClass='high'; riskLabel='CRITICAL — ANOMALY FLAGGED'; }
+
+  const seed = Math.round(rate*7 + dur*3 + dist*11 + room.length*17);
+  const series = seededSeries(seed,6).map(m=>+(baseline*m/1000*(dur/60)).toFixed(4));
+  series.push(+cumulativeDose.toFixed(4));
+  const fc = linearForecast(series);
+
+  const maxv = Math.max(...series, ...fc.next);
+  const bars = series.map(v=>`<div class="trend-bar" style="height:${(v/maxv*70+6).toFixed(0)}px;background:linear-gradient(180deg,#22d3ee,#0e5b6b)"></div>`).join('')
+    + fc.next.map(v=>`<div class="trend-bar" style="height:${(v/maxv*70+6).toFixed(0)}px;background:linear-gradient(180deg,#fbbf24,#6a4d13)"></div>`).join('');
+
+  document.getElementById('anomalyResult').innerHTML = `
+    <div class="result-box risk-${riskClass}">
+      <span class="risk-badge ${riskClass}">${riskLabel}</span>
+      <div class="calc-line" style="margin-top:10px;">Baseline expected rate for <b>${room}</b> × procedure factor = <b>${baseline.toFixed(1)} µSv/h</b></div>
+      <div class="calc-line">Measured rate = <b>${rate} µSv/h</b> → deviation from baseline = <b>${(deviation*100).toFixed(0)}%</b></div>
+      <div class="calc-line">Distance-corrected, shielding-adjusted effective rate = <b>${effectiveRate.toFixed(1)} µSv/h</b></div>
+      <div class="calc-line">Projected dose for this ${dur}-minute task = <b>${cumulativeDose.toFixed(3)} mSv</b></div>
+      <div class="calc-line">Time-series model recalculated — trailing 6-point series + linear regression forecast, slope = <b>${fc.slope.toFixed(4)}</b> mSv/step</div>
+      <div class="calc-line">Forecast next 3 tasks (if pattern continues): <b>${fc.next.map(v=>v.toFixed(3)).join(' → ')}</b> mSv</div>
+      <div class="spark">
+        <div class="trend-wrap" style="height:80px;">${bars}</div>
+        <div style="font-size:9.5px;color:var(--muted2);margin-top:2px;">cyan = observed trailing readings · amber = forecast</div>
+      </div>
+      ${riskClass==='high' ? '<button class="btn red sm" style="margin-top:10px;" onclick="simulateLeak();showView(\'dashboard\')">⚠ Escalate as Anomaly Alert</button>' : ''}
+    </div>
+  `;
+}
+
+/* ============================================================
+   EMERGENCY / GPS
+============================================================ */
+let selectedStaffId = staff[0].id;
+const rooms = [
+  {name:'Cath Lab 1', x:20, y:20, w:180, h:110},
+  {name:'Cath Lab 2', x:20, y:150, w:180, h:110},
+  {name:'Fluoroscopy Suite', x:220, y:20, w:180, h:80},
+  {name:'Nuclear Medicine', x:360, y:150, w:180, h:110},
+  {name:'CT Suite', x:360, y:20, w:180, h:80},
+  {name:'Corridor', x:220, y:120, w:120, h:140},
+];
+function renderFloorMap(){
+  let svg = rooms.map(r=>`<rect class="room-rect" x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" rx="6"></rect><text class="room-lbl" x="${r.x+8}" y="${r.y+16}">${r.name}</text>`).join('');
+  svg += staff.map(s=>{
+    const color = s.status==='critical'?'#f87171':s.status==='elevated'?'#fbbf24':'#34d399';
+    const sel = s.id===selectedStaffId ? '<circle cx="'+s.x+'" cy="'+s.y+'" r="12" fill="none" stroke="'+color+'" stroke-width="1.5" opacity="0.6"><animate attributeName="r" values="9;14;9" dur="1.6s" repeatCount="indefinite"/></circle>' : '';
+    return `<g class="staff-dot" onclick="selectStaff('${s.id}')">${sel}<circle cx="${s.x}" cy="${s.y}" r="6" fill="${color}"></circle><text x="${s.x+9}" y="${s.y+4}" font-size="9" fill="#cbd5f5">${s.id}</text></g>`;
+  }).join('');
+  document.getElementById('floorMap').innerHTML = svg;
+}
+function selectStaff(id){
+  selectedStaffId = id;
+  const s = staff.find(x=>x.id===id);
+  document.getElementById('staffInfoPanel').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <div class="avatar" style="width:38px;height:38px;">${s.name.split(' ').map(w=>w[0]).join('')}</div>
+      <div><div style="font-weight:800;color:#fff;">${s.name}</div><div style="font-size:11px;color:var(--muted);">${s.role}</div></div>
+    </div>
+    <div class="calc-line">Current location: <b>${s.dept}</b></div>
+    <div class="calc-line">Today's dose: <b>${s.today.toFixed(2)} mSv</b> · Cumulative (yr): <b>${s.year.toFixed(1)} mSv</b></div>
+    <div class="calc-line">Status: <span class="badge ${s.status}">${s.status.toUpperCase()}</span></div>
+    <button class="btn red" style="margin-top:12px;width:100%;" onclick="reportToRSO('${s.id}')">🚨 Report to Radiation Safety Officer</button>
+  `;
+  renderFloorMap();
+  document.querySelectorAll('.staff-mini-row').forEach(r=>r.classList.toggle('sel', r.dataset.id===id));
+}
+function reportToRSO(id){
+  const s = staff.find(x=>x.id===id);
+  alerts.unshift({id:Date.now(),level:'critical',title:'Manual report: '+s.name+' — GPS location shared with RSO',meta:'Just now · '+s.dept+' · Reported by dashboard user',ack:false});
+  renderAlerts();
+  toast('Report sent', 'Dr. Radiation Safety Officer notified with ' + s.name + '\u2019s live location (' + s.dept + ') and current dose.', true);
+}
+function renderStaffMiniList(){
+  document.getElementById('staffMiniList').innerHTML = staff.map(s=>{
+    const color = s.status==='critical'?'#f87171':s.status==='elevated'?'#fbbf24':'#34d399';
+    return `<div class="staff-mini-row" data-id="${s.id}" onclick="selectStaff('${s.id}')"><div class="sdot" style="background:${color}"></div><div class="sname">${s.name}</div><div class="sroom">${s.dept}</div></div>`;
+  }).join('');
+}
+renderFloorMap(); renderStaffMiniList();
+document.addEventListener('DOMContentLoaded',()=>selectStaff(selectedStaffId));
+selectStaff(selectedStaffId);
+
+/* ============================================================
+   KNOWLEDGE BASE + RAG-STYLE RETRIEVAL (Ask ALARAD AI)
+============================================================ */
+const KB = [
+  {
+    keywords:['dose limit','approach','limit','exceed','occupational dose','regulatory limit'],
+    answer:'When a projected or measured occupational dose approaches the applicable limit, ALARAD flags the reading through its risk-prediction model, sends a real-time alert to the staff member’s smartwatch, and escalates the case to the hospital dashboard. The event is checked against applicable dose limits before any escalation proceeds, and a Radiation Safety Officer reviews the case before further action is taken.',
+    source:'NRRC — Compliance with Dose Limits', document:'NRRC-R-01-SR02', page:2,
+    action:'Review by Radiation Safety Officer',
+    url:'https://istitlaa.ncc.gov.sa/ar/energy/nrrc/compliancewithdoeslimits/Documents/Compliance%20with%20Dose%20Limits-NRRC-R-01-SR02.pdf'
+  },
+  {
+    keywords:['regulation','saudi arabia','applies','legal framework','who regulates','regulator','ksa law'],
+    answer:'Occupational radiation dose limits in Saudi Arabia fall under the Nuclear and Radiological Regulatory Commission (NRRC) legal framework, which sets the compliance requirements ALARAD’s alerts and escalation workflow are checked against.',
+    source:'NRRC — Nuclear and Radiological Regulatory Legal Framework', document:'NRRC Legal Framework', page:1,
+    action:'Confirm alert thresholds against current NRRC limits',
+    url:'https://nrrc.gov.sa/en/legal-framework/nuclear-regulations-and-executive-regulations/'
+  },
+  {
+    keywords:['leak','radiation leak','shielding failure','equipment malfunction','abnormal','anomaly','malfunction'],
+    answer:'ALARAD’s anomaly detection model continuously compares live dose-rate readings to expected baselines for that room and procedure. An unplanned pattern — such as a shielding failure — is identified in real time and distinguished from normal fluctuation, triggering an immediate alert to the affected staff member and an escalation to the hospital dashboard for RSO review.',
+    source:'IAEA SSG-46 — Radiation Protection and Safety in Medical Uses of Ionizing Radiation', document:'IAEA SSG-46', page:14,
+    action:'Escalate to Radiation Safety Officer and document per NRRC reporting requirements',
+    url:'https://www.iaea.org/publications/11102/radiation-protection-and-safety-in-medical-uses-of-ionizing-radiation'
+  },
+  {
+    keywords:['privacy','personal data','performance review','misuse','staff evaluation','fairness','data governance'],
+    answer:'Exposure and alert data collected for radiation-safety purposes should not automatically be reused for unrelated staff-performance decisions. Any secondary use must be assessed against purpose limitation, lawful basis, transparency, and access-control requirements, and reviewed by data-protection and compliance personnel before proceeding.',
+    source:'SDAIA/NDMO — National Data Management and Personal Data Protection Standards', document:'SDAIA/NDMO Standards', page:8,
+    action:'Route request through data-protection and compliance review',
+    url:'https://sdaia.gov.sa/ndmo/Files/PoliciesEn001.pdf'
+  },
+  {
+    keywords:['secure','transmission','cybersecurity','ot','it','network','encrypted'],
+    answer:'Data from the ALARAD smartwatch is transmitted to the mobile application and cloud platform under secure operational-technology cybersecurity controls covering hospital OT/IT systems, before any pre-processing or model input occurs.',
+    source:'NCA — Operational Technology Cybersecurity Controls Methodology (OTCC-1:2022)', document:'NCA OTCC-1:2022', page:3,
+    action:'Verify transmission channel against OTCC-1:2022 controls',
+    url:'https://cdn.nca.gov.sa/api/files/public/upload/071d52fc-014b-4f15-84ce-1289f3f5c3a9_Operational-Technology-Cybersecurity-Controls-Methodogy-and-Mapping-Annex.pdf'
+  },
+  {
+    keywords:['quality control','qc program','equipment check','calibration','medical equipment'],
+    answer:'Medical radiological equipment supporting ALARAD’s data collection is expected to operate under an established quality-control program, ensuring the dose-rate readings feeding the AI models remain reliable.',
+    source:'NRRC — QC Program for Medical Radiological Equipment', document:'NRRC-R-01-SR03', page:4,
+    action:'Confirm equipment is within current QC program cycle',
+    url:'https://istitlaa.ncc.gov.sa/en/energy/nrrc/establishmentandimplementationofqcprogram/Documents/Establishment%20and%20Implementation%20of%20Quality%20Control%20(QC)%20Program%20for%20Medical%20Radiological%20Equipment-2025_Istitlaa.pdf'
+  },
+  {
+    keywords:['risk','risk prediction','forecast','predict dose','time series','model'],
+    answer:'ALARAD’s AI layer does not measure radiation directly — it forecasts expected future dose using time-series analysis of historical and real-time readings, assigns a risk level, and flags individuals trending toward higher occupational exposure.',
+    source:'ICRP Publication 103 — The 2007 Recommendations of the ICRP', document:'ICRP Publication 103', page:5,
+    action:'Cross-check forecast against ICRP dose-limitation principles',
+    url:'https://www.icrp.org/docs/icrp_publication_103-annals_of_the_icrp_37(2-4)-free_extract.pdf'
+  },
+];
+
+function scoreKB(question, entry){
+  const q = question.toLowerCase();
+  let score = 0;
+  entry.keywords.forEach(k=>{ if(q.includes(k.toLowerCase())) score += k.split(' ').length; });
+  return score;
+}
+function litPipeline(cb){
+  const steps = document.querySelectorAll('.pipe-step');
+  steps.forEach(s=>s.classList.remove('lit'));
+  let i=0;
+  const iv = setInterval(()=>{
+    if(i<steps.length){ steps[i].classList.add('lit'); i++; }
+    else{ clearInterval(iv); cb && cb(); }
+  }, 90);
+}
+function askPreset(el){ document.getElementById('aiQuestion').value = el.textContent; askAlaradAI(); }
+function askAlaradAI(){
+  const q = document.getElementById('aiQuestion').value.trim();
+  const area = document.getElementById('aiAnswerArea');
+  if(!q){ return; }
+  area.innerHTML = `<div class="answer-card"><div class="ai-lbl">AI ANSWER</div><div class="ai-text" style="color:var(--muted2)">Running retrieval pipeline…</div></div>`;
+  litPipeline(()=>{
+    let best=null, bestScore=0;
+    KB.forEach(e=>{ const sc=scoreKB(q,e); if(sc>bestScore){bestScore=sc; best=e;} });
+
+    if(!best || bestScore===0){
+      area.innerHTML = `<div class="answer-card">
+        <div class="ai-lbl">AI ANSWER</div>
+        <div class="ai-text">I could not find a matching topic in the knowledge base. Try keywords like: <i>leak, dose limit, risk, privacy, regulation, cybersecurity, quality control.</i></div>
+      </div>`;
+      return;
+    }
+    area.innerHTML = `<div class="answer-card">
+      <div class="ai-lbl">AI ANSWER</div>
+      <div class="ai-text">${best.answer}</div>
+      <div class="meta-grid">
+        <div class="meta-box"><div class="k">Source</div><div class="v">${best.source}</div></div>
+        <div class="meta-box"><div class="k">Document</div><a class="v" href="${best.url}" target="_blank" rel="noopener">${best.document} ↗</a></div>
+        <div class="meta-box"><div class="k">Page</div><div class="v">Page ${best.page}</div></div>
+        <div class="meta-box action"><div class="k">Recommended Action</div><div class="v">${best.action}</div></div>
+      </div>
+    </div>`;
+  });
+}
+function renderKBList(){
+  document.getElementById('kbList').innerHTML = [...new Set(KB.map(e=>e.source))].map(s=>`<div class="kb-tag">${s}</div>`).join('');
+}
+renderKBList();
+
+/* ============================================================
+   POLICY MAPPING TABLE
+============================================================ */
+const policyRows = [
+  {node:'SRC', comp:'Smartwatch + electronic dosimeter — real-time dose, rate & context capture', risk:'Sensor drift / miscalibration', policy:'IAEA GSR Part 3', req:'Radiation protection & safety of sources', act:'Periodic dosimeter calibration'},
+  {node:'C', comp:'Mobile app & cloud platform — secure transmission', risk:'Data interception / tampering', policy:'NCA OTCC-1:2022', req:'OT/IT cybersecurity controls', act:'Encrypted transmission channel'},
+  {node:'PP', comp:'Pre-processing — cleaning & structuring exposure, working, user & environmental data', risk:'Data quality / bias before model input', policy:'SDAIA/NDMO Standards', req:'Data management standards', act:'Validate & structure before model input'},
+  {node:'M', comp:'Time-series forecasting, risk prediction, anomaly detection', risk:'False negative / missed anomaly', policy:'ICRP Publication 103', req:'ICRP dose-limitation recommendations', act:'Flag deviation, forecast next dose'},
+  {node:'P', comp:'Human-in-the-loop — outputs checked against dose limits', risk:'Unreviewed high-risk escalation', policy:'NRRC-R-01-SR02 / IAEA SSG-46', req:'Compliance with dose limits', act:'RSO review before escalation'},
+  {node:'D', comp:'Alert routing — smartwatch (individual) + dashboard (department)', risk:'Delayed / missed delivery', policy:'NCA OTCC-1:2022', req:'Secure distribution across OT/IT', act:'Dual-channel real-time delivery'},
+  {node:'SINK', comp:'End-user alert (staff) & RSO / hospital administration dashboard', risk:'Data reused outside safety purpose', policy:'ITU AI-Ready Framework 2.0', req:'Standardized AI-readiness governance', act:'Purpose-limitation review for secondary use'},
+];
+document.getElementById('policyTable').innerHTML = policyRows.map(r=>
+  `<tr><td><span class="node-code">${r.node}</span></td><td>${r.comp}</td><td>${r.risk}</td><td>${r.policy}</td><td>${r.req}</td><td>${r.act}</td></tr>`
+).join('');
+
+</script>
+</body>
+</html>
