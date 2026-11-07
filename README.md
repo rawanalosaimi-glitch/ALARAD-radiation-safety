@@ -133,9 +133,12 @@ The **Data Security** page's "Data Sources" and "Proposed Security Architecture"
 sections map these sources/controls explicitly and are labeled as prototype
 documentation, not live integrations.
 
-## Known gaps / not yet in this repository
+## Research demo archive (separate from this app)
 
-Earlier design iterations (single-file prototype releases v1.0–v1.2.3), the Filter 2
-pitch-deck slides, and the recorded demo video were produced outside this repository and
-are not tracked here. If those should be added, they need to be supplied as files to
-whichever session is updating this repo.
+[`research-demo/`](research-demo/) archives an earlier, independently-developed
+single-file research-demo lineage (v1.0 FROZEN → v1.2.3), frozen 2026-11-04 after
+independent review, with its full verification packages and a demo video. It is a
+different app from the one in this repository root — see
+[`research-demo/README.md`](research-demo/README.md) before opening anything in it.
+The Filter 2 pitch-deck slides for that lineage were not ready yet when this archive
+was assembled and are not included.
